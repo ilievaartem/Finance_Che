@@ -1,0 +1,90 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    margin: 0;
+    color: #333;
+}
+
+header {
+    background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%) !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: white;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+
+.card-header {
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 10px 10px 0 0 !important;
+    font-weight: bold;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.table {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.table {
+    font-size: 0.9em;
+}
+
+.table td {
+    max-width: 200px;
+    word-wrap: break-word;
+    white-space: normal;
+}
+
+.pagination {
+    flex-wrap: wrap;
+}
+
+.table thead th {
+    background: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+}
+
+footer {
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%) !important;
+    margin-top: auto;
+}
+
+#kpi-section .card {
+    background: white;
+}
+
+#kpi-section .card-title {
+    color: #495057;
+    font-size: 0.9rem;
+}
+
+#kpi-section .card-text {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #28a745;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 0 15px;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+}

@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.0/nouislider.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="bg-primary text-white py-3 animate__animated animate__fadeInDown" style="display: none;">
+        <div class="container">
+            <h1 class="mb-0">Дашборди</h1>
+        </div>
+    </header>
+
+    <ul class="nav nav-tabs" id="dashboard-tabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="financial-tab" data-bs-toggle="tab" data-bs-target="#financial" type="button" role="tab" aria-controls="financial" aria-selected="true">Фінансова звітність</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="contracts-tab" data-bs-toggle="tab" data-bs-target="#contracts" type="button" role="tab" aria-controls="contracts" aria-selected="false">Договори</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="acts-tab" data-bs-toggle="tab" data-bs-target="#acts" type="button" role="tab" aria-controls="acts" aria-selected="false">Акти</button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="dashboard-content">
+        <div class="tab-pane fade show active" id="financial" role="tabpanel" aria-labelledby="financial-tab">
+            <main class="container my-4">
+        <!-- KPI Cards -->
+        <section id="kpi-section" class="row mb-4 animate__animated animate__fadeInUp">
+            <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Загальна Кількість Звітів</h5>
+                    <p class="card-text" id="total-revenue">0</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Найпоширеніший Фонд</h5>
+                    <p class="card-text" id="total-expenses">Н/Д</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Найпоширеніший Бюджет</h5>
+                    <p class="card-text" id="net-profit">Н/Д</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Звіти з Назвою Організації</h5>
+                    <p class="card-text" id="profit-margin">0</p>
+                </div>
+            </div>
+        </div>
+        </section>
+
+        <!-- Filters Section -->
+        <section class="row mb-4 animate__animated animate__fadeInLeft">
+            <div class="col-md-3">
+                <label for="fund-filter" class="form-label">Фільтр за Фондом</label>
+                <select class="form-select" id="fund-filter">
+                    <option value="">Всі</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="budget-filter" class="form-label">Фільтр за Бюджетом</label>
+                <select class="form-select" id="budget-filter">
+                    <option value="">Всі</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="org-filter" class="form-label">Фільтр за Організацією</label>
+                <select class="form-select" id="org-filter">
+                    <option value="">Всі</option>
+                    <option value="45905639">ДЕПАРТАМЕНТ ОБОРОННОЇ РОБОТИ</option>
+                    <option value="04014252">ДЕПАРТАМЕНТ КАПІТАЛЬНОГО БУДІВНИЦТВА</option>
+                    <option value="26184291">СЛУЖБА У СПРАВАХ ДІТЕЙ</option>
+                    <option value="03494540">ДЕРЖАВНИЙ АРХІВ ЧЕРНІВЕЦЬКОЇ ОБЛАСТІ</option>
+                    <option value="39300801">УПРАВЛІННЯ ЦИВІЛЬНОГО ЗАХИСТУ НАСЕЛЕННЯ</option>
+                    <option value="39301117">УПРАВЛІННЯ МОЛОДІ ТА СПОРТУ</option>
+                    <option value="37240220">УПРАВЛІННЯ КУЛЬТУРИ</option>
+                    <option value="40618131">УПРАВЛІННЯ ЕКОЛОГІЇ ТА ПРИРОДНИХ РЕСУРСІВ</option>
+                    <option value="45159978">УПРАВЛІННЯ З ПИТАНЬ ВЕТЕРАНСЬКОЇ ПОЛІТИКИ</option>
+                    <option value="38536252">УПРАВЛІННЯ АГРОПРОМИСЛОВОГО РОЗВИТКУ</option>
+                    <option value="44110123">ЮРИДИЧНЕ УПРАВЛІННЯ</option>
+                    <option value="43470010">ДЕПАРТАМЕНТ КОМУНІКАЦІЙ</option>
+                    <option value="39302152">ДЕПАРТАМЕНТ ОХОРОНИ ЗДОРОВ'Я</option>
+                    <option value="39301337">ДЕПАРТАМЕНТ ОСВІТИ І НАУКИ</option>
+                    <option value="38345436">ДЕПАРТАМЕНТ СОЦІАЛЬНОГО ЗАХИСТУ НАСЕЛЕННЯ</option>
+                    <option value="41601843">ДЕПАРТАМЕНТ РЕГІОНАЛЬНОГО РОЗВИТКУ</option>
+                    <option value="02317304">ДЕПАРТАМЕНТ ФІНАНСІВ</option>
+                    <option value="00022680">ЧЕРНІВЕЦЬКА ОБЛАСНА ДЕРЖАВНА АДМІНІСТРАЦІЯ</option>
+                    <option value="45048943">ДЕПАРТАМЕНТ СИСТЕМ ЖИТТЄЗАБЕЗПЕЧЕННЯ</option>
+                    <option value="45776308">УПРАВЛІННЯ ЦИФРОВОГО РОЗВИТКУ, ЦИФРОВИХ ТРАНСФОРМАЦІЙ І ЦИФРОВІЗАЦІЇ</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Діапазон Дат</label>
+                <div id="date-slider"></div>
+                <div class="d-flex justify-content-between mt-1">
+                    <span id="min-date-display"></span>
+                    <span id="max-date-display"></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Charts Section -->
+        <section class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        Звіти за Часом
+                    </div>
+                    <div class="card-body">
+                        <canvas id="revenue-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        Звіти за Фондом
+                    </div>
+                    <div class="card-body">
+                        <canvas id="expenses-profit-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        Типи за КВК / КПК
+                    </div>
+                    <div class="card-body">
+                        <canvas id="pie-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Data Table -->
+        <section class="card animate__animated animate__slideInUp">
+            <div class="card-header">
+                Детальні Дані Звітів
+            </div>
+            <div class="card-body">
+                <table id="data-table" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Тип звіту</th>
+                            <th>Бюджет/фонд</th>
+                            <th>КВК / КПК</th>
+                            <th>Період</th>
+                            <th>Дата оприлюднення</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data will be populated by JS -->
+                    </tbody>
+                </table>
+                <nav aria-label="Table pagination">
+                    <ul class="pagination justify-content-center" id="pagination">
+                        <!-- Pagination will be populated by JS -->
+                    </ul>
+                </nav>
+            </div>
+        </section>
+    </main>
+        </div>
+
+        <div class="tab-pane fade" id="contracts" role="tabpanel" aria-labelledby="contracts-tab">
+            <main class="container my-4">
+                <!-- KPI Cards -->
+                <section id="kpi-section-contracts" class="row mb-4 animate__animated animate__fadeInUp">
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">Загальна Кількість Договорів</h5>
+                                <p class="card-text" id="total-contracts">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">Найпоширеніша Організація</h5>
+                                <p class="card-text" id="most-common-org-contracts">Н/Д</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">Загальна Сума</h5>
+                                <p class="card-text" id="total-amount-contracts">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">Середня Сума</h5>
+                                <p class="card-text" id="avg-amount-contracts">0</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Filters Section -->
+                <section class="row mb-4 animate__animated animate__fadeInLeft">
+                    <div class="col-md-3">
+                        <label for="org-filter-contracts" class="form-label">Фільтр за Організацією</label>
+                        <select class="form-select" id="org-filter-contracts">
+                            <option value="">Всі</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Діапазон Дат</label>
+                        <div id="date-slider-contracts"></div>
+                        <div class="d-flex justify-content-between mt-1">
+                            <span id="min-date-display-contracts"></span>
+                            <span id="max-date-display-contracts"></span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Charts Section -->
+                <section class="row mb-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                Договори за Часом
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button class="btn btn-outline-primary active" id="time-year">Рік</button>
+                                    <button class="btn btn-outline-primary" id="time-month">Місяць</button>
+                                    <button class="btn btn-outline-primary" id="time-day">Дні</button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="contracts-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                ТОП-5 Організацій за кількістю договорів
+                            </div>
+                            <div class="card-body">
+                                <canvas id="contracts-top-org-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                Договори за Організацією
+                            </div>
+                            <div class="card-body">
+                                <canvas id="contracts-org-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Contractor Charts -->
+                <section class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                ТОП-5 Контрагентів за кількістю
+                            </div>
+                            <div class="card-body">
+                                <canvas id="contracts-top-contractors-count-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                ТОП-5 Контрагентів за сумою
+                            </div>
+                            <div class="card-body">
+                                <canvas id="contracts-top-contractors-amount-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Data Table -->
+                <section class="card animate__animated animate__slideInUp">
+                    <div class="card-header">
+                        Детальні Дані Договорів
+                    </div>
+                    <div class="card-body">
+                        <table id="data-table-contracts" class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Дата оприлюднення</th>
+                                    <th>ЄДРПОУ розпорядника</th>
+                                    <th>Сума</th>
+                                    <th>Валюта</th>
+                                    <th>Назва закупівлі</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Data will be populated by JS -->
+                            </tbody>
+                        </table>
+                        <nav aria-label="Table pagination">
+                            <ul class="pagination justify-content-center" id="pagination-contracts">
+                                <!-- Pagination will be populated by JS -->
+                            </ul>
+                        </nav>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+
+        <div class="tab-pane fade" id="acts" role="tabpanel" aria-labelledby="acts-tab">
+            <main class="container my-4">
+                <!-- KPI Cards -->
+                <section id="kpi-section-acts" class="row mb-4 animate__animated animate__fadeInUp">
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">Загальна Кількість Актів</h5>
+                                <p class="card-text" id="total-acts">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">Найпоширеніша Організація</h5>
+                                <p class="card-text" id="most-common-org-acts">Н/Д</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">Загальна Сума</h5>
+                                <p class="card-text" id="total-amount-acts">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">Середня Сума</h5>
+                                <p class="card-text" id="avg-amount-acts">0</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Filters Section -->
+                <section class="row mb-4 animate__animated animate__fadeInLeft">
+                    <div class="col-md-3">
+                        <label for="org-filter-acts" class="form-label">Фільтр за Організацією</label>
+                        <select class="form-select" id="org-filter-acts">
+                            <option value="">Всі</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Діапазон Дат</label>
+                        <div id="date-slider-acts"></div>
+                        <div class="d-flex justify-content-between mt-1">
+                            <span id="min-date-display-acts"></span>
+                            <span id="max-date-display-acts"></span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Charts Section -->
+                <section class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                Акти за Часом
+                            </div>
+                            <div class="card-body">
+                                <canvas id="acts-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                Акти за Організацією
+                            </div>
+                            <div class="card-body">
+                                <canvas id="acts-org-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Data Table -->
+                <section class="card animate__animated animate__slideInUp">
+                    <div class="card-header">
+                        Детальні Дані Актів
+                    </div>
+                    <div class="card-body">
+                        <table id="data-table-acts" class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Дата Документа</th>
+                                    <th>Номер Документа</th>
+                                    <th>Організація</th>
+                                    <th>Сума</th>
+                                    <th>Валюта</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Data will be populated by JS -->
+                            </tbody>
+                        </table>
+                        <nav aria-label="Table pagination">
+                            <ul class="pagination justify-content-center" id="pagination-acts">
+                                <!-- Pagination will be populated by JS -->
+                            </ul>
+                        </nav>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <div class="modal fade" id="contract-modal" tabindex="-1" aria-labelledby="contract-modal-label" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="contract-modal-label">Деталі Договору</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="contract-modal-body">
+                    <!-- Content will be populated by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-white py-3 mt-4">
+        <div class="container text-center">
+            <p>&copy; 2023 Дашборд Фінансової Звітності. Всі права захищені.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.0/nouislider.min.js"></script>
+    <script src="CombinedApiData.js"></script>
+    <script src="CombinedApiDataContracts.js"></script>
+    <script src="CombinedApiDataActs.js"></script>
+    <script src="type.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -50,6 +50,19 @@ const fundMap = {
     "null": "Інше",
 };
 
+document.addEventListener('DOMContentLoaded', function() {
+    populateFilters();
+
+    document.querySelectorAll('#dashboard-tabs .nav-link').forEach(tab => {
+        tab.addEventListener('shown.bs.tab', function (e) {
+            currentTab = e.target.id.replace('-tab', '');
+            switchTab();
+        });
+    });
+
+    updateDashboard();
+});
+
 function getReportName(reportType, publishDate) {
     if (!publishDate || !reportType) return reportType ? reportType.toString() : 'N/A';
     const date = new Date(publishDate);
@@ -199,33 +212,41 @@ document.addEventListener('DOMContentLoaded', function() {
                 const row = document.createElement('tr');
                 row.className = 'fade-in';
                 row.style.animationDelay = `${index * 0.05}s`;
+
+                // Формуємо назву звіту
+                const reportName = getReportName(item.reportTypeId, item.publishDate) || 'Н/Д';
+
+                // Бюджет / Фонд
+                const fundLabel = fundMap[item.fund] || item.fund || 'Н/Д';
+                const budgetLabel = budgetMap[item.budget] || item.budget || 'Н/Д';
+
+                // КВК / КПК (беремо item.progKlas або прогалину)
+                const kvk = item.progKlas || 'Н/Д';
+
+                // Період: перетворюємо publishDate у квартал (Q -> Квартал X YYYY)
+                let periodLabel = 'Н/Д';
+                if (item.publishDate) {
+                    const d = new Date(item.publishDate);
+                    if (!isNaN(d)) {
+                        const quarter = Math.floor(d.getMonth() / 3) + 1;
+                        periodLabel = `Квартал ${quarter} ${d.getFullYear()}`;
+                    }
+                }
+
+                const publishDateCell = item.publishDate || 'Н/Д';
+
                 row.innerHTML = `
-                    <td>
-                        <div class="date-cell">
-                            <i class="fas fa-calendar-alt" style="color: var(--text-muted); margin-right: 0.5rem;"></i>
-                            ${item.publishDate || 'N/A'}
-                        </div>
+                    <td title="${reportName}">
+                        ${reportName}
                     </td>
                     <td>
-                        <span class="fund-badge ${item.fund ? item.fund.toLowerCase() : 'default'}">
-                            ${fundMap[item.fund] || item.fund || 'N/A'}
-                        </span>
+                        <span class="budget-badge ${item.budget ? item.budget.toLowerCase() : 'default'}">${budgetLabel}</span>
+                        &nbsp;/&nbsp;
+                        <span class="fund-badge ${item.fund ? item.fund.toLowerCase() : 'default'}">${fundLabel}</span>
                     </td>
-                    <td>
-                        <span class="budget-badge ${item.budget ? item.budget.toLowerCase() : 'default'}">
-                            ${budgetMap[item.budget] || item.budget || 'N/A'}
-                        </span>
-                    </td>
-                    <td title="${orgMap[item.edrpou] || item.orgPravForm || 'N/A'}">
-                        ${(orgMap[item.edrpou] || item.orgPravForm || 'N/A').length > 30 ? 
-                          (orgMap[item.edrpou] || item.orgPravForm || 'N/A').substring(0, 30) + '...' : 
-                          (orgMap[item.edrpou] || item.orgPravForm || 'N/A')}
-                    </td>
-                    <td title="${item.progKlas || 'N/A'}">
-                        ${item.progKlas ? 
-                          (item.progKlas.length > 40 ? item.progKlas.substring(0, 40) + '...' : item.progKlas) : 
-                          'N/A'}
-                    </td>
+                    <td title="${kvk}">${kvk}</td>
+                    <td>${periodLabel}</td>
+                    <td>${publishDateCell}</td>
                     <td class="actions-column">
                         <div class="action-buttons-cell">
                             <button class="btn-table-action" title="Переглянути деталі" onclick="viewDetails('${item.id || index}')">

@@ -33,7 +33,7 @@
                 </div>
             </div>
         </header>
-
+        
         <main class="container-fluid my-4">
             <section id="kpi-section" class="dashboard-metrics mb-5 animate__animated animate__fadeInUp">
                 <div class="row g-4">
@@ -43,7 +43,7 @@
                                 <i class="fas fa-file-alt"></i>
                             </div>
                             <div class="metric-content">
-                                <h3 class="metric-value" id="total-revenue">0</h3>
+                                <h3 class="metric   -value" id="total-revenue">0</h3>
                                 <p class="metric-label">Загальна Кількість Звітів</p>
                                 <div class="metric-trend">
                                     <i class="fas fa-arrow-up"></i>
@@ -312,30 +312,30 @@
                     </div>
                     <div class="table-body">
                         <div class="table-responsive">
-                            <table id="data-table" class="modern-table">
+                                <table id="data-table" class="modern-table">
                                 <thead>
                                     <tr>
-                                        <th class="sortable" data-column="publishDate">
-                                            <span>Дата Публікації</span>
+                                        <th class="sortable col-report" data-column="reportTypeId">
+                                            <span>Тип звіту</span>
                                             <i class="fas fa-sort sort-icon"></i>
                                         </th>
-                                        <th class="sortable" data-column="fund">
-                                            <span>Фонд</span>
+                                        <th class="sortable col-budget" data-column="budget">
+                                            <span>Бюджет / Фонд</span>
                                             <i class="fas fa-sort sort-icon"></i>
                                         </th>
-                                        <th class="sortable" data-column="budget">
-                                            <span>Бюджет</span>
+                                        <th class="sortable col-kvk" data-column="progKlas">
+                                            <span>КВК / КПК</span>
                                             <i class="fas fa-sort sort-icon"></i>
                                         </th>
-                                        <th class="sortable" data-column="subdivision">
-                                            <span>Підрозділ</span>
+                                        <th class="sortable col-period" data-column="publishDate">
+                                            <span>Період</span>
                                             <i class="fas fa-sort sort-icon"></i>
                                         </th>
-                                        <th class="sortable" data-column="programClass">
-                                            <span>Клас Програми</span>
+                                        <th class="sortable col-pubdate" data-column="publishDate">
+                                            <span>Дата оприлюднення</span>
                                             <i class="fas fa-sort sort-icon"></i>
                                         </th>
-                                        <th class="actions-column text-center">Дії</th>
+                                        <th class="actions-column col-actions text-center">Дії</th>
                                     </tr>
                                 </thead>
                                 <tbody>

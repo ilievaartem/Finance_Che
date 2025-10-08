@@ -67,142 +67,70 @@ function getReportName(reportType, publishDate) {
 }
 
 
-const revenueCtx = document.getElementById('revenue-chart').getContext('2d');
-const revenueChart = new Chart(revenueCtx, {
-    type: 'line',
-    data: {
-        labels: [],
-        datasets: [{
-            label: 'Звіти',
-            data: [],
-            borderColor: 'rgba(75, 192, 192, 1)',
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            tension: 0.1
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: {
-                position: 'top',
-            },
-            title: {
-                display: true,
-                text: 'Звіти за Часом'
-            }
-        }
-    }
-});
+const d3Root = d3;
 
-const expensesProfitCtx = document.getElementById('expenses-profit-chart').getContext('2d');
-const expensesProfitChart = new Chart(expensesProfitCtx, {
-    type: 'bar',
-    data: {
-        labels: [],
-        datasets: [{
-            label: 'Кількість',
-            data: [],
-            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-            borderColor: 'rgba(54, 162, 235, 1)',
-            borderWidth: 1
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: {
-                position: 'top',
-            },
-            title: {
-                display: true,
-                text: 'Звіти за Фондом'
-            }
-        },
-        scales: {
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    callback: function(value) {
-                        return value;
-                    }
-                }
-            }
-        }
-    }
-});
+const tooltip = d3Root.select('body').append('div')
+    .attr('class', 'd3-tooltip')
+    .style('position', 'absolute')
+    .style('pointer-events', 'none')
+    .style('background', 'rgba(0,0,0,0.8)')
+    .style('color', '#fff')
+    .style('padding', '6px 8px')
+    .style('border-radius', '4px')
+    .style('font-size', '12px')
+    .style('max-width', '320px')
+    .style('white-space', 'normal')
+    .style('word-break', 'break-word')
+    .style('display', 'none');
 
-const bubbleColors = [
-    'rgba(255, 99, 132, 0.5)',
-    'rgba(54, 162, 235, 0.5)',
-    'rgba(255, 205, 86, 0.5)',
-    'rgba(75, 192, 192, 0.5)',
-    'rgba(153, 102, 255, 0.5)',
-    'rgba(255, 159, 64, 0.5)',
-    'rgba(199, 199, 199, 0.5)',
-    'rgba(83, 102, 255, 0.5)',
-    'rgba(255, 99, 255, 0.5)',
-    'rgba(99, 255, 132, 0.5)'
-];
+function showSmartTooltip(event, html) {
+    const e = (event && event.touches && event.touches[0]) ? event.touches[0] : event;
+    tooltip.html(html).style('display', 'block');
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const padding = 8;
+    const clientX = (e && (e.clientX ?? (e.pageX - window.scrollX))) || 0;
+    const clientY = (e && (e.clientY ?? (e.pageY - window.scrollY))) || 0;
+    const preferLeft = clientX > vw / 2;
+    const preferTop = clientY > vh / 2;
+    const rect = tooltip.node().getBoundingClientRect();
+    let x = preferLeft ? (clientX - rect.width - 12) : (clientX + 12);
+    let y = preferTop ? (clientY - rect.height - 12) : (clientY + 12);
+    if (x + rect.width + padding > vw) x = vw - rect.width - padding;
+    if (x < padding) x = padding;
+    if (y + rect.height + padding > vh) y = vh - rect.height - padding;
+    if (y < padding) y = padding;
+    tooltip.style('left', (window.scrollX + x) + 'px').style('top', (window.scrollY + y) + 'px');
+}
 
-const pieCtx = document.getElementById('pie-chart').getContext('2d');
-const pieChart = new Chart(pieCtx, {
-    type: 'bubble',
-    data: {
-        datasets: []
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: {
-                display: false
-            },
-            title: {
-                display: true,
-                text: 'Типи Звітів',
-                font: {
-                    size: 16,
-                    weight: 'bold'
-                },
-                color: 'var(--text-primary)'
-            },
-            tooltip: {
-                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                titleColor: 'white',
-                bodyColor: 'white',
-                borderColor: 'rgba(255, 255, 255, 0.1)',
-                borderWidth: 1,
-                cornerRadius: 8,
-                displayColors: false,
-                callbacks: {
-                    title: function() {
-                        return '';
-                    },
-                    label: function(context) {
-                        const count = Math.round(Math.pow(context.raw.r / 5, 2));
-                        const fullLabel = context.dataset.fullLabel || context.dataset.label;
-                        return fullLabel + '\nКількість: ' + count + ' звітів';
-                    }
-                }
-            }
-        },
-        scales: {
-            x: {
-                display: false,
-                min: 0,
-                max: 100
-            },
-            y: {
-                display: false,
-                min: 0,
-                max: 100
-            }
-        },
-        interaction: {
-            intersect: false,
-            mode: 'point'
-        }
-    }
-});
+const revenueContainer = d3Root.select('#revenue-chart-container');
+const revenueSvg = revenueContainer.append('svg')
+    .attr('id', 'revenue-svg')
+    .style('width', '100%')
+    .style('height', '280px');
+
+const revenueG = revenueSvg.append('g').attr('class', 'revenue-g');
+
+const expensesContainer = d3Root.select('#expenses-chart-container');
+const expensesSvg = expensesContainer.append('svg')
+    .attr('id', 'expenses-svg')
+    .style('width', '100%')
+    .style('height', '280px');
+
+const expensesG = expensesSvg.append('g').attr('class', 'expenses-g');
+
+const bubbleContainer = d3Root.select('#pie-chart-container');
+const bubbleSvg = bubbleContainer.append('svg')
+    .attr('id', 'bubble-svg')
+    .style('width', '100%')
+    .style('height', '100%')
+    .style('min-height', '420px');
+
+const bubbleG = bubbleSvg.append('g').attr('class', 'bubble-g');
+
+function clearGroup(g) {
+    g.selectAll('*').remove();
+}
 
 
 const dateSlider = document.getElementById('date-slider');
@@ -581,39 +509,137 @@ document.addEventListener('DOMContentLoaded', function() {
         
         updateRevenueChart(activePeriod);
         updateExpensesChart(activeView);
-        updateBubbleChart();
+        updateTreemapChart();
     }
     
-    function updateBubbleChart() {
+    function updateTreemapChart() {
         const reportTypeCounts = filteredData.reduce((acc, item) => {
             const name = getReportName(item.reportTypeId, item.publishDate);
             acc[name] = (acc[name] || 0) + 1;
             return acc;
         }, {});
-        const reportTypeLabels = Object.keys(reportTypeCounts);
-        const reportTypeDatasets = reportTypeLabels.map((label, index) => ({
-            label: label.length > 30 ? label.substring(0, 30) + '...' : label,
-            fullLabel: label, 
-            data: [{
-                x: Math.random() * 100,
-                y: Math.random() * 100,
-                r: Math.max(Math.sqrt(reportTypeCounts[label]) * 5, 10) 
-            }],
-            backgroundColor: bubbleColors[index % bubbleColors.length],
-            borderColor: bubbleColors[index % bubbleColors.length].replace('0.5', '1'),
-            borderWidth: 2
-        }));
-        pieChart.data.datasets = reportTypeDatasets;
-        
-        pieChart.options.plugins.tooltip.callbacks.label = function(context) {
-            const datasetIndex = context.datasetIndex;
-            const label = reportTypeLabels[datasetIndex];
-            const count = reportTypeCounts[label];
-            const fullLabel = context.dataset.fullLabel || context.dataset.label;
-            return fullLabel + '\nКількість: ' + count + ' звітів';
+
+        const treeData = {
+            name: "Типи звітів",
+            children: Object.keys(reportTypeCounts).map(key => ({
+                name: key,
+                value: reportTypeCounts[key]
+            }))
         };
-        
-        pieChart.update();
+
+        clearGroup(bubbleG);
+
+    const svgRect = bubbleSvg.node().getBoundingClientRect();
+    const width = Math.max(320, svgRect.width - 24);
+    const height = Math.max(300, svgRect.height - 24);
+
+        const treemap = d3Root.treemap()
+            .tile(d3Root.treemapSquarify)
+            .size([width, height])
+            .padding(2)
+            .round(true);
+
+        const root = d3Root.hierarchy(treeData)
+            .sum(d => d.value)
+            .sort((a, b) => b.value - a.value);
+
+        treemap(root);
+
+    bubbleG.attr('transform', 'translate(12,12)');
+
+        const color = d3Root.scaleOrdinal(d3Root.schemeSet3);
+
+        const leaf = bubbleG.selectAll('g.treemap-leaf')
+            .data(root.leaves())
+            .join('g')
+            .attr('class', 'treemap-leaf')
+            .attr('transform', d => `translate(${d.x0},${d.y0})`);
+
+        leaf.append('rect')
+            .attr('width', d => Math.max(0, d.x1 - d.x0))
+            .attr('height', d => Math.max(0, d.y1 - d.y0))
+            .attr('fill', (d, i) => color(i))
+            .attr('fill-opacity', 0.8)
+            .attr('stroke', '#ffffff')
+            .attr('stroke-width', 1.5)
+            .attr('rx', 4) 
+            .on('mousemove', (event, d) => {
+                showSmartTooltip(event, `<strong>${d.data.name}</strong><br/>Кількість: ${d.data.value}<br/>Відсоток: ${((d.data.value / filteredData.length) * 100).toFixed(1)}%`);
+            })
+            .on('touchstart', (event, d) => {
+                showSmartTooltip(event, `<strong>${d.data.name}</strong><br/>Кількість: ${d.data.value}<br/>Відсоток: ${((d.data.value / filteredData.length) * 100).toFixed(1)}%`);
+            })
+            .on('click', (event, d) => {
+                showSmartTooltip(event, `<strong>${d.data.name}</strong><br/>Кількість: ${d.data.value}<br/>Відсоток: ${((d.data.value / filteredData.length) * 100).toFixed(1)}%`);
+            })
+            .on('mouseleave', () => tooltip.style('display', 'none'));
+
+        leaf.append('clipPath')
+            .attr('id', (d, i) => `treemap-clip-${i}`)
+            .append('rect')
+            .attr('width', d => Math.max(0, d.x1 - d.x0 - 6))
+            .attr('height', d => Math.max(0, d.y1 - d.y0 - 6))
+            .attr('x', 3)
+            .attr('y', 3);
+
+        leaf.each(function(d, i) {
+            const leafGroup = d3Root.select(this);
+            const rectWidth = d.x1 - d.x0;
+            const rectHeight = d.y1 - d.y0;
+            
+            const fontSize = Math.min(14, Math.max(10, Math.min(rectWidth / 8, rectHeight / 6)));
+            
+            if (rectWidth > 40 && rectHeight > 20) {
+                const textGroup = leafGroup.append('g')
+                    .attr('class', 'treemap-text')
+                    .attr('clip-path', `url(#treemap-clip-${i})`);
+
+                const words = d.data.name.split(/\s+/);
+                const lines = [];
+                let currentLine = '';
+                const maxLineLength = Math.floor(rectWidth / (fontSize * 0.6));
+                
+                words.forEach(word => {
+                    if ((currentLine + word).length <= maxLineLength) {
+                        currentLine = currentLine ? `${currentLine} ${word}` : word;
+                    } else {
+                        if (currentLine) lines.push(currentLine);
+                        currentLine = word;
+                    }
+                });
+                if (currentLine) lines.push(currentLine);
+                
+                const maxLines = Math.floor((rectHeight - 20) / (fontSize + 2));
+                const displayLines = lines.slice(0, maxLines);
+                
+                displayLines.forEach((line, lineIndex) => {
+                    textGroup.append('text')
+                        .attr('x', rectWidth / 2)
+                        .attr('y', (rectHeight / 2) - ((displayLines.length - 1) * (fontSize + 2) / 2) + (lineIndex * (fontSize + 2)))
+                        .attr('text-anchor', 'middle')
+                        .attr('dominant-baseline', 'middle')
+                        .style('fill', '#ffffff')
+                        .style('font-size', `${fontSize}px`)
+                        .style('font-weight', '600')
+                        .style('text-shadow', '1px 1px 2px rgba(0,0,0,0.8)')
+                        .text(line);
+                });
+                
+                if (rectHeight > 40) {
+                    textGroup.append('text')
+                        .attr('x', rectWidth / 2)
+                        .attr('y', rectHeight - 8)
+                        .attr('text-anchor', 'middle')
+                        .style('fill', '#ffffff')
+                        .style('font-size', `${Math.max(10, fontSize - 2)}px`)
+                        .style('font-weight', '700')
+                        .style('text-shadow', '1px 1px 2px rgba(0,0,0,0.8)')
+                        .text(`(${d.data.value})`);
+                }
+            }
+        });
+
+        showNotification('Оновлено типи звітів', 'success');
     }
 
     function applyFilters() {
@@ -913,16 +939,29 @@ document.addEventListener('DOMContentLoaded', function() {
         collapseButtons.forEach(button => {
             const targetId = button.getAttribute('data-bs-target');
             const targetElement = document.querySelector(targetId);
-            
+            const card = button.closest('.chart-card') || button.closest('.panel-card');
+
             if (targetElement) {
+                const icon = button.querySelector('i');
+                if (icon) icon.style.transform = '';
+                if (targetElement.classList.contains('show')) {
+                    button.setAttribute('aria-expanded', 'true');
+                    if (card) card.classList.remove('is-collapsed');
+                } else {
+                    button.setAttribute('aria-expanded', 'false');
+                    if (card) card.classList.add('is-collapsed');
+                }
                 targetElement.addEventListener('shown.bs.collapse', function() {
-                    const icon = button.querySelector('i');
-                    icon.style.transform = 'rotate(180deg)';
+                    button.setAttribute('aria-expanded', 'true');
+                    if (card && card.classList.contains('is-collapsed')) {
+                        card.classList.remove('is-collapsed');
+                    }
                 });
-                
                 targetElement.addEventListener('hidden.bs.collapse', function() {
-                    const icon = button.querySelector('i');
-                    icon.style.transform = 'rotate(0deg)';
+                    button.setAttribute('aria-expanded', 'false');
+                    if (card && !card.classList.contains('is-collapsed')) {
+                        card.classList.add('is-collapsed');
+                    }
                 });
             }
         });
@@ -975,13 +1014,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function updateRevenueChart(period) {
         let groupedData = {};
-        
+
         filteredData.forEach(item => {
             if (!item.publishDate) return;
-            
             const date = new Date(item.publishDate);
             let key;
-            
             switch(period) {
                 case 'month':
                     key = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
@@ -996,18 +1033,83 @@ document.addEventListener('DOMContentLoaded', function() {
                 default:
                     key = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
             }
-            
             groupedData[key] = (groupedData[key] || 0) + 1;
         });
-        
+
         const sortedKeys = Object.keys(groupedData).sort();
         const values = sortedKeys.map(key => groupedData[key]);
-        
-        revenueChart.data.labels = sortedKeys;
-        revenueChart.data.datasets[0].data = values;
-        revenueChart.data.datasets[0].label = `Звіти (${getPeriodLabel(period)})`;
-        revenueChart.update();
-        
+
+        clearGroup(revenueG);
+
+    const isCompact = revenueSvg.node()?.closest('.chart-card')?.classList.contains('compact');
+    const margin = isCompact ? { top: 10, right: 16, bottom: 44, left: 44 } : { top: 20, right: 20, bottom: 50, left: 50 };
+    const width = (revenueSvg.node().getBoundingClientRect().width || 600) - margin.left - margin.right;
+    const height = (parseInt(revenueSvg.style('height')) || 280) - margin.top - margin.bottom;
+
+        revenueG.attr('transform', `translate(${margin.left},${margin.top})`);
+
+        const x = d3Root.scalePoint()
+            .domain(sortedKeys)
+            .range([0, width]);
+
+        const y = d3Root.scaleLinear()
+            .domain([0, d3Root.max(values) || 1])
+            .range([height, 0]);
+
+        revenueG.append('g')
+            .attr('class', 'x-axis')
+            .attr('transform', `translate(0,${height})`)
+            .call(d3Root.axisBottom(x).tickValues(sortedKeys.filter((d, i) => {
+                return i % Math.ceil(sortedKeys.length / 8 || 1) === 0;
+            })) )
+            .selectAll('text')
+            .attr('transform', 'rotate(-40)')
+            .style('text-anchor', 'end');
+
+        revenueG.append('g')
+            .attr('class', 'y-axis')
+            .call(d3Root.axisLeft(y).ticks(5));
+
+        const line = d3Root.line()
+            .x((d, i) => x(sortedKeys[i]))
+            .y(d => y(d))
+            .curve(d3Root.curveMonotoneX);
+
+        revenueG.append('path')
+            .datum(values)
+            .attr('fill', 'none')
+            .attr('stroke', 'rgba(75,192,192,1)')
+            .attr('stroke-width', 2)
+            .attr('d', line);
+
+        const area = d3Root.area()
+            .x((d, i) => x(sortedKeys[i]))
+            .y0(y(0))
+            .y1(d => y(d))
+            .curve(d3Root.curveMonotoneX);
+
+        revenueG.append('path')
+            .datum(values)
+            .attr('fill', 'rgba(75,192,192,0.15)')
+            .attr('d', area);
+
+        revenueG.selectAll('circle.point')
+            .data(values)
+            .join('circle')
+            .attr('class', 'point')
+            .attr('cx', (d, i) => x(sortedKeys[i]))
+            .attr('cy', d => y(d))
+            .attr('r', 4)
+            .attr('fill', 'rgba(75,192,192,1)')
+            .on('mousemove', (event, d) => {
+                const i = values.indexOf(d);
+                tooltip.style('display', 'block')
+                    .html(`<strong>${sortedKeys[i]}</strong><br/>Звіти: ${d}`)
+                    .style('left', (event.pageX + 12) + 'px')
+                    .style('top', (event.pageY + 12) + 'px');
+            })
+            .on('mouseleave', () => tooltip.style('display', 'none'));
+
         showNotification(`Оновлено графік за ${getPeriodLabel(period)}`, 'success');
     }
     
@@ -1026,31 +1128,60 @@ document.addEventListener('DOMContentLoaded', function() {
             acc[fund] = (acc[fund] || 0) + 1;
             return acc;
         }, {});
-        
+
         const fundLabels = Object.keys(fundCounts).map(label => fundMap[label] || label);
         let fundData = Object.values(fundCounts);
-        
+
         if (view === 'percentage') {
             const total = fundData.reduce((sum, val) => sum + val, 0);
-            fundData = fundData.map(val => total > 0 ? ((val / total) * 100).toFixed(1) : 0);
+            fundData = fundData.map(val => total > 0 ? ((val / total) * 100) : 0);
         }
-        
-        expensesProfitChart.data.labels = fundLabels;
-        expensesProfitChart.data.datasets[0].data = fundData;
-        expensesProfitChart.data.datasets[0].label = view === 'percentage' ? 'Відсоток (%)' : 'Кількість';
-        
-        if (view === 'percentage') {
-            expensesProfitChart.options.scales.y.ticks.callback = function(value) {
-                return value + '%';
-            };
-        } else {
-            expensesProfitChart.options.scales.y.ticks.callback = function(value) {
-                return value;
-            };
-        }
-        
-        expensesProfitChart.update();
-        
+
+        clearGroup(expensesG);
+
+    const isCompact = expensesSvg.node()?.closest('.chart-card')?.classList.contains('compact');
+    const margin = isCompact ? { top: 10, right: 16, bottom: 72, left: 52 } : { top: 20, right: 20, bottom: 80, left: 60 };
+    const width = (expensesSvg.node().getBoundingClientRect().width || 600) - margin.left - margin.right;
+    const height = (parseInt(expensesSvg.style('height')) || 280) - margin.top - margin.bottom;
+
+        expensesG.attr('transform', `translate(${margin.left},${margin.top})`);
+
+        const x = d3Root.scaleBand()
+            .domain(fundLabels)
+            .range([0, width])
+            .padding(0.2);
+
+        const y = d3Root.scaleLinear()
+            .domain([0, d3Root.max(fundData) || 1])
+            .range([height, 0]);
+
+        expensesG.append('g')
+            .attr('transform', `translate(0,${height})`)
+            .call(d3Root.axisBottom(x))
+            .selectAll('text')
+            .attr('transform', 'rotate(-40)')
+            .style('text-anchor', 'end');
+
+        const yAxis = d3Root.axisLeft(y).ticks(6).tickFormat(d => view === 'percentage' ? d.toFixed(1) + '%' : d);
+        expensesG.append('g').call(yAxis);
+
+        expensesG.selectAll('.bar')
+            .data(fundLabels.map((label, i) => ({ label, value: fundData[i] })))
+            .join('rect')
+            .attr('class', 'bar')
+            .attr('x', d => x(d.label))
+            .attr('y', d => y(d.value))
+            .attr('width', x.bandwidth())
+            .attr('height', d => height - y(d.value))
+            .attr('fill', 'rgba(54,162,235,0.7)')
+            .on('mousemove', (event, d) => {
+                tooltip.style('display', 'block')
+                    .html(`<strong>${d.label}</strong><br/>${view === 'percentage' ? d.value.toFixed(1) + '%' : d.value + ' звітів'}`)
+                    .style('left', (event.pageX + 12) + 'px')
+                    .style('top', (event.pageY + 12) + 'px');
+            })
+            .on('mouseleave', () => tooltip.style('display', 'none'));
+
         const viewLabel = view === 'percentage' ? 'відсоток' : 'кількість';
         showNotification(`Змінено вигляд на ${viewLabel}`, 'success');
     }
@@ -1141,73 +1272,169 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Element not found:', elementId);
             return;
         }
-
-        let chartInstance;
-        let chartTitle;
+        let svgToClone;
+        let chartTitle = '';
         if (elementId === 'pie-chart-container') {
-            chartInstance = pieChart;
+            svgToClone = document.getElementById('bubble-svg');
             chartTitle = 'Типи Звітів';
         } else if (elementId === 'revenue-chart-container') {
-            chartInstance = revenueChart;
+            svgToClone = document.getElementById('revenue-svg');
             chartTitle = 'Динаміка Звітів за Часом';
         } else if (elementId === 'expenses-chart-container') {
-            chartInstance = expensesProfitChart;
+            svgToClone = document.getElementById('expenses-svg');
             chartTitle = 'Розподіл за Фондами';
         }
 
-        if (!chartInstance) {
-            console.error('Chart instance not found for:', elementId);
+        if (!svgToClone) {
+            console.error('SVG not found for fullscreen:', elementId);
             return;
         }
 
-        showChartModal(chartInstance, chartTitle);
+        showChartModal(svgToClone, chartTitle);
     };
 
     function showChartModal(chartInstance, chartTitle) {
         const modalContent = `
-            <div class="chart-modal-backdrop" onclick="closeChartModal()">
+            <div class="chart-modal-backdrop" id="chart-modal-backdrop">
                 <div class="chart-modal-content" onclick="event.stopPropagation()">
                     <div class="chart-modal-header">
                         <h3><i class="fas fa-chart-line"></i> ${chartTitle}</h3>
-                        <button class="chart-modal-close" onclick="closeChartModal()">
+                        <button class="chart-modal-close" id="chart-modal-close">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
-                    <div class="chart-modal-body">
-                        <canvas id="modal-chart"></canvas>
+                    <div class="chart-modal-body" id="chart-modal-body">
                     </div>
                 </div>
             </div>
         `;
-        
+
         const modalElement = document.createElement('div');
         modalElement.id = 'chart-modal';
         modalElement.innerHTML = modalContent;
         document.body.appendChild(modalElement);
-        
-        const modalCanvas = document.getElementById('modal-chart');
-        const modalCtx = modalCanvas.getContext('2d');
-        
-        const modalChartConfig = {
-            type: chartInstance.config.type,
-            data: JSON.parse(JSON.stringify(chartInstance.data)),
-            options: JSON.parse(JSON.stringify(chartInstance.options))
-        };
-        
-        modalChartConfig.options.responsive = true;
-        modalChartConfig.options.maintainAspectRatio = true;
-        
-        const modalChart = new Chart(modalCtx, modalChartConfig);
-        
-        window.currentModalChart = modalChart;
+
+        document.getElementById('chart-modal-close').addEventListener('click', closeChartModal);
+        document.getElementById('chart-modal-backdrop').addEventListener('click', closeChartModal);
+
+        const modalBody = document.getElementById('chart-modal-body');
+
+        if (chartTitle === 'Типи Звітів') {
+            const modalScale = 0.92; 
+            const modalPadding = 0;   
+            const minModalSize = 250;
+            const strokeWidth = 1.0;  
+            const textBaseSize = 12;  
+
+            const rect = modalBody.getBoundingClientRect();
+            const margin = { top: 0, right: 0, bottom: 0, left: 0 };
+            const rawWidth = Math.max(minModalSize, rect.width - margin.left - margin.right);
+            const rawHeight = Math.max(minModalSize, rect.height - margin.top - margin.bottom);
+            const width = Math.floor(rawWidth * modalScale);
+            const height = Math.floor(rawHeight * modalScale);
+
+            const svg = d3Root.select(modalBody)
+                .append('svg')
+                .attr('id', 'modal-bubble-svg')
+                .style('width', '100%')
+                .style('height', '100%')
+                .attr('viewBox', `0 0 ${rawWidth} ${rawHeight}`)
+                .attr('preserveAspectRatio', 'xMidYMid meet');
+
+            const offsetX = Math.max(0, Math.floor((rawWidth - width) / 2));
+            const offsetY = Math.max(0, Math.floor((rawHeight - height) / 2));
+            const g = svg.append('g').attr('transform', `translate(${offsetX + margin.left},${offsetY + margin.top})`);
+
+            const reportTypeCounts = filteredData.reduce((acc, item) => {
+                const name = getReportName(item.reportTypeId, item.publishDate);
+                acc[name] = (acc[name] || 0) + 1;
+                return acc;
+            }, {});
+
+            const treeData = {
+                name: 'Типи звітів',
+                children: Object.keys(reportTypeCounts).map(key => ({ name: key, value: reportTypeCounts[key] }))
+            };
+
+            const treemap = d3Root.treemap()
+                .tile(d3Root.treemapSquarify)
+                .size([width, height])
+                .padding(modalPadding)
+                .round(false);
+
+            const root = d3Root.hierarchy(treeData)
+                .sum(d => d.value)
+                .sort((a, b) => b.value - a.value);
+
+            treemap(root);
+
+            const color = d3Root.scaleOrdinal(d3Root.schemeSet3);
+
+            const leaf = g.selectAll('g.treemap-leaf')
+                .data(root.leaves())
+                .join('g')
+                .attr('class', 'treemap-leaf')
+                .attr('transform', d => `translate(${d.x0},${d.y0})`);
+
+            const rectRx = Math.max(0, Math.round(4 * modalScale));
+            const rectStroke = Math.max(0.5, strokeWidth * modalScale);
+
+            leaf.append('rect')
+                .attr('width', d => Math.max(0, d.x1 - d.x0))
+                .attr('height', d => Math.max(0, d.y1 - d.y0))
+                .attr('fill', (d, i) => color(i))
+                .attr('fill-opacity', 0.85)
+                .attr('stroke', '#ffffff')
+                .attr('stroke-width', rectStroke)
+                .attr('rx', rectRx)
+                .on('mousemove', (event, d) => {
+                    showSmartTooltip(event, `<strong>${d.data.name}</strong><br/>Кількість: ${d.data.value}<br/>Відсоток: ${((d.data.value / filteredData.length) * 100).toFixed(1)}%`);
+                })
+                .on('touchstart', (event, d) => {
+                    showSmartTooltip(event, `<strong>${d.data.name}</strong><br/>Кількість: ${d.data.value}<br/>Відсоток: ${((d.data.value / filteredData.length) * 100).toFixed(1)}%`);
+                })
+                .on('click', (event, d) => {
+                    showSmartTooltip(event, `<strong>${d.data.name}</strong><br/>Кількість: ${d.data.value}<br/>Відсоток: ${((d.data.value / filteredData.length) * 100).toFixed(1)}%`);
+                })
+                .on('mouseleave', () => tooltip.style('display', 'none'));
+
+            const modalFontSize = Math.max(8, Math.floor(textBaseSize * modalScale));
+            leaf.append('text')
+                .attr('x', 6)
+                .attr('y', 6 + modalFontSize)
+                .attr('fill', '#ffffff')
+                .attr('class', 'treemap-text')
+                .style('font-size', `${modalFontSize}px`)
+                .style('font-weight', 600)
+                .text(d => d.data.name)
+                .each(function(d) {
+                    const node = d3Root.select(this);
+                    const maxWidth = Math.max(0, d.x1 - d.x0) - 12;
+                    let text = d.data.name;
+                    while (this.getComputedTextLength && this.getComputedTextLength() > maxWidth && text.length > 3) {
+                        text = text.slice(0, -2);
+                        node.text(text + '…');
+                    }
+                });
+
+            window.currentModalSvg = svg.node();
+        } else {
+            const svgNode = chartInstance.cloneNode(true);
+            svgNode.removeAttribute('width');
+            svgNode.removeAttribute('height');
+            svgNode.style.width = '100%';
+            svgNode.style.height = '100%';
+            modalBody.appendChild(svgNode);
+            window.currentModalSvg = svgNode;
+        }
     }
 
     window.closeChartModal = function() {
         const modal = document.getElementById('chart-modal');
         if (modal) {
-            if (window.currentModalChart) {
-                window.currentModalChart.destroy();
-                window.currentModalChart = null;
+            if (window.currentModalSvg) {
+                try { window.currentModalSvg.remove(); } catch(e) {}
+                window.currentModalSvg = null;
             }
             modal.remove();
         }
@@ -1225,6 +1452,19 @@ document.addEventListener('DOMContentLoaded', function() {
         const themeIcon = document.querySelector('#theme-toggle i');
         if (themeIcon) themeIcon.className = 'fas fa-sun';
     }
+
+    // Перемальовуємо графіки при зміні розмірів вікна (з дебаунсом)
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            const activePeriod = document.querySelector('[data-period].active')?.getAttribute('data-period') || 'month';
+            const activeView = document.querySelector('[data-view].active')?.getAttribute('data-view') || 'count';
+            updateRevenueChart(activePeriod);
+            updateExpensesChart(activeView);
+            updateTreemapChart();
+        }, 150);
+    });
 
     updateDashboard();
 });

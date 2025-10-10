@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Дашборд Договорів</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.0/nouislider.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="contracts.css">
+</head>
+<body>
+    <div class="page-wrapper">
+        <header class="modern-header animate__animated animate__fadeInDown">
+            <div class="container">
+                <div class="header-content">
+                    <div class="header-brand">
+                        <i class="fas fa-file-contract brand-icon"></i>
+                        <h1 class="brand-title">Аналітика Договорів</h1>
+                    </div>
+                    <div class="header-controls">
+                        <a href="index.html" class="btn-nav" title="Головна">
+                            <i class="fas fa-home"></i>
+                        </a>
+                        <a href="financial.html" class="btn-nav" title="Фінансова звітність">
+                            <i class="fas fa-chart-line"></i>
+                        </a>
+                        <a href="acts.html" class="btn-nav" title="Акти">
+                            <i class="fas fa-file-alt"></i>
+                        </a>
+                        <button class="btn-refresh" id="refresh-data" title="Оновити дані">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <div class="theme-toggle" id="theme-toggle" title="Змінити тему">
+                            <i class="fas fa-moon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <main class="container-fluid my-4">
+            <section id="kpi-section" class="dashboard-metrics mb-5 animate__animated animate__fadeInUp">
+                <div class="row g-4">
+                    <div class="col-lg-3 col-md-6">
+                        <div class="metric-card total-contracts">
+                            <div class="metric-icon">
+                                <i class="fas fa-file-contract"></i>
+                            </div>
+                            <div class="metric-content">
+                                <h3 class="metric-value" id="total-contracts">0</h3>
+                                <p class="metric-label">Загальна Кількість Договорів</p>
+                                <div class="metric-trend">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>+12.5%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="metric-card popular-org">
+                            <div class="metric-icon">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <div class="metric-content">
+                                <h3 class="metric-value" id="most-common-org-contracts">Н/Д</h3>
+                                <p class="metric-label">Найактивніша Організація</p>
+                                <div class="metric-trend">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>Лідер</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="metric-card total-amount">
+                            <div class="metric-icon">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <div class="metric-content">
+                                <h3 class="metric-value" id="total-amount-contracts">0</h3>
+                                <p class="metric-label">Загальна Сума Договорів</p>
+                                <div class="metric-trend">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>+8.3%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="metric-card avg-amount">
+                            <div class="metric-icon">
+                                <i class="fas fa-calculator"></i>
+                            </div>
+                            <div class="metric-content">
+                                <h3 class="metric-value" id="avg-amount-contracts">0</h3>
+                                <p class="metric-label">Середня Сума Договору</p>
+                                <div class="metric-trend">
+                                    <i class="fas fa-arrow-down"></i>
+                                    <span>-3.1%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="filters-panel mb-4 animate__animated animate__fadeInLeft">
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h5 class="panel-title">
+                            <i class="fas fa-filter me-2"></i>
+                            Фільтри та Налаштування
+                        </h5>
+                        <button class="btn-collapse" data-bs-toggle="collapse" data-bs-target="#filtersContent" aria-expanded="true">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    </div>
+                    <div class="collapse show" id="filtersContent">
+                        <div class="panel-body">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <div class="filter-group">
+                                        <label for="org-filter-contracts" class="filter-label">
+                                            <i class="fas fa-building me-2"></i>
+                                            Організація
+                                        </label>
+                                        <select class="form-select filter-select" id="org-filter-contracts">
+                                            <option value="">Всі організації</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="filter-group">
+                                        <label class="filter-label">
+                                            <i class="fas fa-calendar-alt me-2"></i>
+                                            Період договорів
+                                        </label>
+                                        <div class="date-slider-container">
+                                            <div class="date-slider-row">
+                                                <div id="date-slider-contracts" class="flex-grow-1"></div>
+                                                <button class="btn btn-outline-secondary btn-reset-compact" id="reset-filters" title="Скинути фільтри">
+                                                    <i class="fas fa-undo"></i>
+                                                    <span class="d-none d-md-inline ms-1">Скинути</span>
+                                                </button>
+                                            </div>
+                                            <div class="date-display">
+                                                <span class="date-badge" id="min-date-display-contracts"></span>
+                                                <span class="date-separator">—</span>
+                                                <span class="date-badge" id="max-date-display-contracts"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="charts-grid mb-4">
+                <div class="row g-4">
+                    <div class="col-12">
+                        <div class="chart-card animate__animated animate__fadeInUp">
+                            <div class="chart-header">
+                                <div class="chart-title">
+                                    <i class="fas fa-chart-line me-2"></i>
+                                    Динаміка Договорів у Часі
+                                </div>
+                                <div class="chart-controls">
+                                    <button class="btn-chart-option active" data-period="month">Місяць</button>
+                                    <button class="btn-chart-option" data-period="day">День</button>
+                                    <button class="btn-chart-option" data-period="year">Рік</button>
+                                </div>
+                            </div>
+                            <div id="contractsChartContent" class="chart-body collapse show">
+                                <div id="contracts-chart" class="chart-container"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4 mt-2">
+                    <div class="col-lg-6">
+                        <div class="chart-card animate__animated animate__fadeInLeft">
+                            <div class="chart-header">
+                                <div class="chart-title">
+                                    <i class="fas fa-trophy me-2"></i>
+                                    ТОП-5 Організацій
+                                </div>
+                                <div class="chart-actions">
+                                    <button class="btn-collapse" data-bs-toggle="collapse" data-bs-target="#topOrgsChartContent" aria-expanded="true">
+                                        <i class="fas fa-chevron-down"></i>
+                                    </button>
+                                    <button class="btn-chart-action" title="Повноекранний режим" onclick="toggleFullscreen('contracts-top-org-chart')">
+                                        <i class="fas fa-expand"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="topOrgsChartContent" class="chart-body collapse show">
+                                <div id="contracts-top-org-chart" class="chart-container"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="chart-card animate__animated animate__fadeInRight">
+                            <div class="chart-header">
+                                <div class="chart-title">
+                                    <i class="fas fa-chart-pie me-2"></i>
+                                    Розподіл за Організаціями
+                                </div>
+                                <div class="chart-actions">
+                                    <button class="btn-collapse" data-bs-toggle="collapse" data-bs-target="#orgPieChartContent" aria-expanded="true">
+                                        <i class="fas fa-chevron-down"></i>
+                                    </button>
+                                    <button class="btn-chart-action" title="Повноекранний режим" onclick="toggleFullscreen('contracts-org-chart')">
+                                        <i class="fas fa-expand"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="orgPieChartContent" class="chart-body collapse show">
+                                <div id="contracts-org-chart" class="chart-container"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4 mt-2">
+                    <div class="col-lg-6">
+                        <div class="chart-card animate__animated animate__fadeInLeft">
+                            <div class="chart-header">
+                                <div class="chart-title">
+                                    <i class="fas fa-handshake me-2"></i>
+                                    ТОП-5 Контрагентів (К-сть)
+                                </div>
+                                <div class="chart-actions">
+                                    <button class="btn-collapse" data-bs-toggle="collapse" data-bs-target="#topContractorsCountContent" aria-expanded="true">
+                                        <i class="fas fa-chevron-down"></i>
+                                    </button>
+                                    <button class="btn-chart-action" title="Повноекранний режим" onclick="toggleFullscreen('contracts-top-contractors-count-chart')">
+                                        <i class="fas fa-expand"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="topContractorsCountContent" class="chart-body collapse show">
+                                <div id="contracts-top-contractors-count-chart" class="chart-container"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="chart-card animate__animated animate__fadeInRight">
+                            <div class="chart-header">
+                                <div class="chart-title">
+                                    <i class="fas fa-money-check-alt me-2"></i>
+                                    ТОП-5 Контрагентів (Сума)
+                                </div>
+                                <div class="chart-actions">
+                                    <button class="btn-collapse" data-bs-toggle="collapse" data-bs-target="#topContractorsAmountContent" aria-expanded="true">
+                                        <i class="fas fa-chevron-down"></i>
+                                    </button>
+                                    <button class="btn-chart-action" title="Повноекранний режим" onclick="toggleFullscreen('contracts-top-contractors-amount-chart')">
+                                        <i class="fas fa-expand"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="topContractorsAmountContent" class="chart-body collapse show">
+                                <div id="contracts-top-contractors-amount-chart" class="chart-container"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="data-table-section animate__animated animate__slideInUp">
+                <div class="table-card">
+                    <div class="table-header">
+                        <div class="table-title">
+                            <i class="fas fa-table me-2"></i>
+                            Детальна Інформація про Договори
+                        </div>
+                        <div class="table-controls">
+                            <div class="table-search">
+                                <input type="text" class="form-control" id="table-search" placeholder="Пошук в таблиці...">
+                                <i class="fas fa-search search-icon"></i>
+                            </div>
+                            <div class="action-buttons">
+                                <button class="btn-action" id="export-pdf" title="Експорт в PDF">
+                                    <i class="fas fa-file-pdf"></i>
+                                </button>
+                                <button class="btn-action" id="refresh-table" title="Оновити таблицю">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-body">
+                        <div class="table-responsive">
+                            <table id="data-table-contracts" class="modern-table">
+                                <thead>
+                                    <tr>
+                                        <th class="sortable" data-column="documentDate">
+                                            <i class="fas fa-calendar-alt me-1"></i>
+                                            Дата документа
+                                            <i class="fas fa-sort sort-icon"></i>
+                                        </th>
+                                        <th class="sortable" data-column="edrpou">
+                                            <i class="fas fa-building me-1"></i>
+                                            ЄДРПОУ
+                                            <i class="fas fa-sort sort-icon"></i>
+                                        </th>
+                                        <th class="sortable" data-column="amount">
+                                            <i class="fas fa-money-bill-wave me-1"></i>
+                                            Сума
+                                            <i class="fas fa-sort sort-icon"></i>
+                                        </th>
+                                        <th class="sortable" data-column="currency">
+                                            <i class="fas fa-coins me-1"></i>
+                                            Валюта
+                                            <i class="fas fa-sort sort-icon"></i>
+                                        </th>
+                                        <th class="sortable" data-column="contractor">
+                                            <i class="fas fa-handshake me-1"></i>
+                                            Контрагент
+                                            <i class="fas fa-sort sort-icon"></i>
+                                        </th>
+                                        <th>
+                                            <i class="fas fa-cogs me-1"></i>
+                                            Дії
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="table-footer">
+                            <div class="table-info">
+                                <span id="table-info-text">Показано 0 з 0 записів</span>
+                            </div>
+                            <nav aria-label="Table pagination" class="table-pagination">
+                                <ul class="pagination pagination-sm" id="pagination-contracts">
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <div class="modal fade" id="contract-modal" tabindex="-1" aria-labelledby="contract-modal-label" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content modern-modal">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="contract-modal-label">
+                            <i class="fas fa-file-contract me-2"></i>
+                            Детальна Інформація про Договір
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="contract-modal-body">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-1"></i>Закрити
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="loading-overlay" id="loading-overlay">
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                <p>Завантаження даних...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.0/nouislider.min.js"></script>
+    <script src="CombinedApiDataContracts.js"></script>
+    <script src="contracts.js"></script>
+</body>
+</html>

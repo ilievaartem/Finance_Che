@@ -280,312 +280,114 @@ function getQuarterYear(dateStr) {
 }
 
 
-// Initialize charts
-const revenueCtx = document.getElementById('revenue-chart').getContext('2d');
-const revenueChart = new Chart(revenueCtx, {
-    type: 'line',
-    data: {
-        labels: [],
-        datasets: [{
-            label: 'Звіти',
-            data: [],
-            borderColor: 'rgba(75, 192, 192, 1)',
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            tension: 0.1
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: {
-                position: 'top',
-            },
-            title: {
-                display: true,
-                text: 'Звіти за Часом'
-            }
-        }
-    }
-});
-
-const expensesProfitCtx = document.getElementById('expenses-profit-chart').getContext('2d');
-const expensesProfitChart = new Chart(expensesProfitCtx, {
-    type: 'bar',
-    data: {
-        labels: [],
-        datasets: [{
-            label: 'Кількість',
-            data: [],
-            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-            borderColor: 'rgba(54, 162, 235, 1)',
-            borderWidth: 1
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: {
-                position: 'top',
-            },
-            title: {
-                display: true,
-                text: 'Звіти за Фондом'
-            }
-        }
-    }
-});
-
 const bubbleColors = [
-    'rgba(255, 99, 132, 0.5)',
-    'rgba(54, 162, 235, 0.5)',
-    'rgba(255, 205, 86, 0.5)',
-    'rgba(75, 192, 192, 0.5)',
-    'rgba(153, 102, 255, 0.5)',
-    'rgba(255, 159, 64, 0.5)',
-    'rgba(199, 199, 199, 0.5)',
-    'rgba(83, 102, 255, 0.5)',
-    'rgba(255, 99, 255, 0.5)',
-    'rgba(99, 255, 132, 0.5)'
+    '#ff6384','#36a2eb','#ffcd56','#4bc0c0','#9966ff','#ff9f40','#c7c7c7','#535cff','#ff63ff','#63ff84'
 ];
 
-const pieCtx = document.getElementById('pie-chart').getContext('2d');
-const pieChart = new Chart(pieCtx, {
-    type: 'bubble',
-    data: {
-        datasets: []
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: {
-                position: 'bottom',
-            },
-            title: {
-                display: true,
-                text: 'Типи Звітів'
-            },
-            tooltip: {
-                callbacks: {
-                    label: function(context) {
-                        const count = Math.round(Math.pow(context.raw.r / 3, 2));
-                        return context.dataset.label + ': ' + count;
-                    }
-                }
-            }
-        },
-        scales: {
-            x: {
-                display: false
-            },
-            y: {
-                display: false
-            }
-        }
-    }
-});
+function clearChart(id) {
+    d3.select('#' + id).selectAll('*').remove();
+}
 
-const contractsCtx = document.getElementById('contracts-chart').getContext('2d');
-const contractsChart = new Chart(contractsCtx, {
-    type: 'line',
-    data: {
-        labels: [],
-        datasets: [{
-            label: 'Договори',
-            data: [],
-            borderColor: 'rgba(75, 192, 192, 1)',
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            tension: 0.1
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: { position: 'top' },
-            title: { display: true, text: 'Договори за Часом' }
-        }
-    }
-});
+function getSize(id) {
+    const node = document.getElementById(id);
+    return { width: Math.max(300, node.clientWidth || 600), height: node.clientHeight || 320 };
+}
 
-const contractsOrgCtx = document.getElementById('contracts-org-chart').getContext('2d');
-const contractsOrgChart = new Chart(contractsOrgCtx, {
-    type: 'radar',
-    data: {
-        labels: [],
-        datasets: [{
-            label: 'Кількість',
-            data: [],
-            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-            borderColor: 'rgba(54, 162, 235, 1)',
-            borderWidth: 1
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: { position: 'top' },
-            title: { display: true, text: 'Договори за Організацією' }
-        }
-    }
-});
+function renderLine(id, labels, values, opts = {}) {
+    clearChart(id);
+    const { width, height } = getSize(id);
+    const margin = { top: 20, right: 20, bottom: 40, left: 50 };
+    const w = width - margin.left - margin.right;
+    const h = height - margin.top - margin.bottom;
+    const svg = d3.select('#' + id).append('svg').attr('width', width).attr('height', height);
+    const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
 
-const contractsTopOrgCtx = document.getElementById('contracts-top-org-chart').getContext('2d');
-const contractsTopOrgChart = new Chart(contractsTopOrgCtx, {
-    type: 'polarArea',
-    data: {
-        labels: [],
-        datasets: [{
-            data: [],
-            backgroundColor: [
-                'rgba(255, 99, 132, 0.8)',
-                'rgba(54, 162, 235, 0.8)',
-                'rgba(255, 205, 86, 0.8)',
-                'rgba(75, 192, 192, 0.8)',
-                'rgba(153, 102, 255, 0.8)'
-            ],
-            borderWidth: 1
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: { position: 'bottom' },
-            title: { display: true, text: 'ТОП-5 Організацій' },
-            tooltip: {
-                callbacks: {
-                    label: function(context) {
-                        const label = context.label || '';
-                        const value = context.raw || context.parsed;
-                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                        const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                        return label + ': ' + percentage + '%';
-                    }
-                }
-            }
-        }
-    }
-});
+    const x = d3.scalePoint().domain(labels).range([0, w]);
+    const y = d3.scaleLinear().domain([0, d3.max(values) || 1]).nice().range([h, 0]);
 
+    const line = d3.line().x((d,i) => x(labels[i])).y(d => y(d)).curve(d3.curveMonotoneX);
+    g.append('path').datum(values).attr('fill', 'none').attr('stroke', opts.color || '#4bc0c0').attr('stroke-width', 2).attr('d', line);
 
-const actsCtx = document.getElementById('acts-chart').getContext('2d');
-const actsChart = new Chart(actsCtx, {
-    type: 'line',
-    data: {
-        labels: [],
-        datasets: [{
-            label: 'Акти',
-            data: [],
-            borderColor: 'rgba(153, 102, 255, 1)',
-            backgroundColor: 'rgba(153, 102, 255, 0.2)',
-            tension: 0.1
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: { position: 'top' },
-            title: { display: true, text: 'Акти за Часом' }
-        }
-    }
-});
+    g.selectAll('circle').data(values).enter().append('circle').attr('cx',(d,i) => x(labels[i])).attr('cy', d => y(d)).attr('r', 3).attr('fill', opts.color || '#4bc0c0')
+        .on('mouseover', function(event,d){
+            const i = values.indexOf(d);
+            const tooltip = d3.select('body').append('div').attr('class','d3-tooltip').style('position','absolute').style('pointer-events','none').style('background','#fff').style('padding','6px').style('border','1px solid #ccc').style('border-radius','4px');
+            tooltip.html(`<strong>${labels[i]}</strong><br/>${d}`);
+            const [mx,my] = d3.pointer(event);
+            tooltip.style('left', (event.pageX + 10) + 'px').style('top', (event.pageY - 10) + 'px');
+        }).on('mouseout', function(){ d3.selectAll('.d3-tooltip').remove(); });
 
-const actsOrgCtx = document.getElementById('acts-org-chart').getContext('2d');
-const actsOrgChart = new Chart(actsOrgCtx, {
-    type: 'bar',
-    data: {
-        labels: [],
-        datasets: [{
-            label: 'Кількість',
-            data: [],
-            backgroundColor: 'rgba(255, 159, 64, 0.2)',
-            borderColor: 'rgba(255, 159, 64, 1)',
-            borderWidth: 1
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: { position: 'top' },
-            title: { display: true, text: 'Акти за Організацією' }
-        }
-    }
-});
+    g.append('g').attr('transform', `translate(0,${h})`).call(d3.axisBottom(x)).selectAll('text').style('font-size','11px').attr('transform','rotate(-45)').style('text-anchor','end');
+    g.append('g').call(d3.axisLeft(y));
+}
 
-const contractsTopContractorsCountCtx = document.getElementById('contracts-top-contractors-count-chart').getContext('2d');
-const contractsTopContractorsCountChart = new Chart(contractsTopContractorsCountCtx, {
-    type: 'polarArea',
-    data: {
-        labels: [],
-        datasets: [{
-            data: [],
-            backgroundColor: [
-                'rgba(255, 99, 132, 0.8)',
-                'rgba(54, 162, 235, 0.8)',
-                'rgba(255, 205, 86, 0.8)',
-                'rgba(75, 192, 192, 0.8)',
-                'rgba(153, 102, 255, 0.8)'
-            ],
-            borderWidth: 1
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: { position: 'bottom' },
-            title: { display: true, text: 'ТОП-5 Контрагентів за кількістю' },
-            tooltip: {
-                callbacks: {
-                    label: function(context) {
-                        const label = context.label || '';
-                        const value = context.raw || context.parsed;
-                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                        const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                        return label + ': ' + percentage + '%';
-                    }
-                }
-            }
-        }
-    }
-});
+function renderBar(id, labels, values, opts = {}) {
+    clearChart(id);
+    const { width, height } = getSize(id);
+    const margin = { top: 20, right: 20, bottom: 80, left: 60 };
+    const w = width - margin.left - margin.right;
+    const h = height - margin.top - margin.bottom;
+    const svg = d3.select('#' + id).append('svg').attr('width', width).attr('height', height);
+    const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
 
-const contractsTopContractorsAmountCtx = document.getElementById('contracts-top-contractors-amount-chart').getContext('2d');
-const contractsTopContractorsAmountChart = new Chart(contractsTopContractorsAmountCtx, {
-    type: 'polarArea',
-    data: {
-        labels: [],
-        datasets: [{
-            data: [],
-            backgroundColor: [
-                'rgba(255, 99, 132, 0.8)',
-                'rgba(54, 162, 235, 0.8)',
-                'rgba(255, 205, 86, 0.8)',
-                'rgba(75, 192, 192, 0.8)',
-                'rgba(153, 102, 255, 0.8)'
-            ],
-            borderWidth: 1
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: { position: 'bottom' },
-            title: { display: true, text: 'ТОП-5 Контрагентів за сумою' },
-            tooltip: {
-                callbacks: {
-                    label: function(context) {
-                        const label = context.label || '';
-                        const value = context.raw || context.parsed;
-                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                        const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                        return label + ': ' + percentage + '%';
-                    }
-                }
-            }
-        }
-    }
-});
+    const x = d3.scaleBand().domain(labels).range([0, w]).padding(0.2);
+    const y = d3.scaleLinear().domain([0, d3.max(values) || 1]).nice().range([h, 0]);
 
+    g.selectAll('.bar').data(values).enter().append('rect').attr('class','bar').attr('x',(d,i)=>x(labels[i])).attr('y',d=>y(d)).attr('width',x.bandwidth()).attr('height',d=>h-y(d)).attr('fill', opts.color || '#36a2eb')
+        .on('mouseover', function(event,d){
+            const i = values.indexOf(d);
+            const tooltip = d3.select('body').append('div').attr('class','d3-tooltip').style('position','absolute').style('pointer-events','none').style('background','#fff').style('padding','6px').style('border','1px solid #ccc').style('border-radius','4px');
+            tooltip.html(`<strong>${labels[i]}</strong><br/>${d}`);
+            tooltip.style('left', (event.pageX + 10) + 'px').style('top', (event.pageY - 10) + 'px');
+        }).on('mouseout', function(){ d3.selectAll('.d3-tooltip').remove(); });
 
-// Initialize noUiSlider
+    g.append('g').attr('transform', `translate(0,${h})`).call(d3.axisBottom(x)).selectAll('text').style('font-size','11px').attr('transform','rotate(-45)').style('text-anchor','end');
+    g.append('g').call(d3.axisLeft(y));
+}
+
+function renderPie(id, labels, values, opts = {}) {
+    clearChart(id);
+    const { width, height } = getSize(id);
+    const radius = Math.min(width, height) / 2 - 20;
+    const svg = d3.select('#' + id).append('svg').attr('width', width).attr('height', height).append('g').attr('transform', `translate(${width/2},${height/2})`);
+    const pie = d3.pie().sort(null).value(d=>d);
+    const data_ready = pie(values);
+    const arc = d3.arc().innerRadius(radius*0.45).outerRadius(radius);
+    svg.selectAll('slice').data(data_ready).enter().append('path').attr('d', arc).attr('fill', (d,i)=>bubbleColors[i % bubbleColors.length]).attr('stroke','#fff').style('stroke-width','1px')
+        .on('mouseover', function(event,d){
+            const i = data_ready.indexOf(d);
+            const tooltip = d3.select('body').append('div').attr('class','d3-tooltip').style('position','absolute').style('pointer-events','none').style('background','#fff').style('padding','6px').style('border','1px solid #ccc').style('border-radius','4px');
+            tooltip.html(`<strong>${labels[i]}</strong><br/>${values[i]}`);
+            tooltip.style('left', (event.pageX + 10) + 'px').style('top', (event.pageY - 10) + 'px');
+        }).on('mouseout', function(){ d3.selectAll('.d3-tooltip').remove(); });
+
+    // Legend
+    const legend = d3.select('#' + id).append('div').style('display','flex').style('flex-wrap','wrap').style('justify-content','center').style('gap','8px').style('margin-top','8px');
+    labels.forEach((lab,i)=>{
+        const item = legend.append('div').style('display','flex').style('align-items','center').style('gap','6px');
+        item.append('div').style('width','12px').style('height','12px').style('background', bubbleColors[i % bubbleColors.length]);
+        item.append('div').text(`${lab} (${values[i]})`).style('font-size','12px');
+    });
+}
+
+function renderBubblePack(id, labels, values) {
+    clearChart(id);
+    const data = labels.map((l,i)=>({name:l,value:values[i]}));
+    const { width, height } = getSize(id);
+    const root = d3.hierarchy({children: data}).sum(d=>d.value);
+    const pack = d3.pack().size([width, height]).padding(5);
+    pack(root);
+    const svg = d3.select('#' + id).append('svg').attr('width', width).attr('height', height);
+    const node = svg.selectAll('g').data(root.leaves()).enter().append('g').attr('transform', d=>`translate(${d.x},${d.y})`);
+    node.append('circle').attr('r', d=>d.r).attr('fill', (d,i)=>bubbleColors[i % bubbleColors.length]).attr('opacity',0.85);
+    node.append('text').attr('text-anchor','middle').attr('dy','0.3em').style('font-size','11px').text(d=>d.data.name);
+    node.on('mouseover', function(event,d){
+        const tooltip = d3.select('body').append('div').attr('class','d3-tooltip').style('position','absolute').style('pointer-events','none').style('background','#fff').style('padding','6px').style('border','1px solid #ccc').style('border-radius','4px');
+        tooltip.html(`${d.data.name}<br/>${d.data.value}`);
+        tooltip.style('left', (event.pageX + 10) + 'px').style('top', (event.pageY - 10) + 'px');
+    }).on('mouseout', ()=>d3.selectAll('.d3-tooltip').remove());
+}
+
 const dateSlider = document.getElementById('date-slider');
 noUiSlider.create(dateSlider, {
     start: [0, 100],
@@ -769,9 +571,7 @@ function updateCharts() {
             return acc;
         }, {});
         const sortedDates = Object.keys(dateCounts).sort();
-        revenueChart.data.labels = sortedDates;
-        revenueChart.data.datasets[0].data = sortedDates.map(date => dateCounts[date]);
-        revenueChart.update();
+        renderLine('revenue-chart', sortedDates, sortedDates.map(date => dateCounts[date]), { color: 'rgba(75, 192, 192, 1)' });
 
         // Fund Distribution
         const fundCounts = filteredData.reduce((acc, item) => {
@@ -781,9 +581,7 @@ function updateCharts() {
         }, {});
         const fundLabels = Object.keys(fundCounts).map(label => fundMap[label] || label);
         const fundData = Object.values(fundCounts);
-        expensesProfitChart.data.labels = fundLabels;
-        expensesProfitChart.data.datasets[0].data = fundData;
-        expensesProfitChart.update();
+        renderBar('expenses-profit-chart', fundLabels, fundData, { color: 'rgba(54, 162, 235, 1)' });
 
         // Bubble Chart for KVK / KPK Types
         const progKlasCounts = filteredData.reduce((acc, item) => {
@@ -792,18 +590,9 @@ function updateCharts() {
             return acc;
         }, {});
         const progKlasLabels = Object.keys(progKlasCounts);
-        const progKlasDatasets = progKlasLabels.map((label, index) => ({
-            label: label,
-            data: [{
-                x: Math.random() * 100,
-                y: Math.random() * 100,
-                r: Math.sqrt(progKlasCounts[label]) * 3
-            }],
-            backgroundColor: bubbleColors[index % bubbleColors.length],
-            borderColor: bubbleColors[index % bubbleColors.length].replace('0.5', '1')
-        }));
-        pieChart.data.datasets = progKlasDatasets;
-        pieChart.update();
+        const progKlasValues = progKlasLabels.map(l => progKlasCounts[l]);
+        // Use bubble pack to visualize categories with size
+        renderBubblePack('pie-chart', progKlasLabels, progKlasValues);
     } else {
         switch(currentTab) {
             case 'contracts':
@@ -818,9 +607,7 @@ function updateCharts() {
                 const topOrgPie = Object.entries(orgCountsPie).sort((a,b) => b[1] - a[1]).slice(0,5);
                 const orgLabelsPie = topOrgPie.map(([k,v]) => orgMap[k] || k);
                 const orgDataPie = topOrgPie.map(([k,v]) => v);
-                contractsTopOrgChart.data.labels = orgLabelsPie;
-                contractsTopOrgChart.data.datasets[0].data = orgDataPie;
-                contractsTopOrgChart.update();
+                renderPie('contracts-top-org-chart', orgLabelsPie, orgDataPie);
 
                 // Org radar
                 const orgCountsC = filteredData.reduce((acc, item) => {
@@ -831,9 +618,7 @@ function updateCharts() {
                 const topOrg = Object.entries(orgCountsC).sort((a,b) => b[1] - a[1]).slice(0,10);
                 const orgLabelsC = topOrg.map(([k,v]) => orgMap[k] || k);
                 const orgDataC = topOrg.map(([k,v]) => v);
-                contractsOrgChart.data.labels = orgLabelsC;
-                contractsOrgChart.data.datasets[0].data = orgDataC;
-                contractsOrgChart.update();
+                renderBar('contracts-org-chart', orgLabelsC, orgDataC, { color: 'rgba(54, 162, 235, 1)' });
 
                 // TOP-5 Contractors by count
                 const contractorCounts = filteredData.reduce((acc, item) => {
@@ -848,9 +633,7 @@ function updateCharts() {
                 const topContractorsCount = Object.entries(contractorCounts).sort((a,b) => b[1] - a[1]).slice(0,5);
                 const contractorLabelsCount = topContractorsCount.map(([k,v]) => k);
                 const contractorDataCount = topContractorsCount.map(([k,v]) => v);
-                contractsTopContractorsCountChart.data.labels = contractorLabelsCount;
-                contractsTopContractorsCountChart.data.datasets[0].data = contractorDataCount;
-                contractsTopContractorsCountChart.update();
+                renderPie('contracts-top-contractors-count-chart', contractorLabelsCount, contractorDataCount);
 
                 // TOP-5 Contractors by amount
                 const contractorAmounts = filteredData.reduce((acc, item) => {
@@ -865,9 +648,7 @@ function updateCharts() {
                 const topContractorsAmount = Object.entries(contractorAmounts).sort((a,b) => b[1] - a[1]).slice(0,5);
                 const contractorLabelsAmount = topContractorsAmount.map(([k,v]) => k);
                 const contractorDataAmount = topContractorsAmount.map(([k,v]) => v);
-                contractsTopContractorsAmountChart.data.labels = contractorLabelsAmount;
-                contractsTopContractorsAmountChart.data.datasets[0].data = contractorDataAmount;
-                contractsTopContractorsAmountChart.update();
+                renderPie('contracts-top-contractors-amount-chart', contractorLabelsAmount, contractorDataAmount);
                 break;
             case 'acts':
                 const dateCountsAc = filteredData.reduce((acc, item) => {
@@ -876,9 +657,7 @@ function updateCharts() {
                     return acc;
                 }, {});
                 const sortedDatesAc = Object.keys(dateCountsAc).sort();
-                actsChart.data.labels = sortedDatesAc;
-                actsChart.data.datasets[0].data = sortedDatesAc.map(date => dateCountsAc[date]);
-                actsChart.update();
+                renderLine('acts-chart', sortedDatesAc, sortedDatesAc.map(date => dateCountsAc[date]), { color: 'rgba(153, 102, 255, 1)' });
 
                 const orgCountsAc = filteredData.reduce((acc, item) => {
                     const org = item.edrpou || 'null';
@@ -887,9 +666,7 @@ function updateCharts() {
                 }, {});
                 const orgLabelsAc = Object.keys(orgCountsAc).map(label => orgMap[label] || label);
                 const orgDataAc = Object.values(orgCountsAc);
-                actsOrgChart.data.labels = orgLabelsAc;
-                actsOrgChart.data.datasets[0].data = orgDataAc;
-                actsOrgChart.update();
+                renderBar('acts-org-chart', orgLabelsAc, orgDataAc, { color: 'rgba(255, 159, 64, 1)' });
                 break;
         }
     }
@@ -1019,9 +796,7 @@ function updateTimeChart() {
         return acc;
     }, {});
     const sortedKeys = Object.keys(dateCounts).sort();
-    contractsChart.data.labels = sortedKeys;
-    contractsChart.data.datasets[0].data = sortedKeys.map(key => dateCounts[key]);
-    contractsChart.update();
+    renderLine('contracts-chart', sortedKeys, sortedKeys.map(key => dateCounts[key]), { color: 'rgba(75, 192, 192, 1)' });
 }
 
 function setActiveButton(activeId) {
@@ -1097,7 +872,7 @@ function populateFilters() {
             orgSelect.appendChild(option);
         });
     }
-    // Event listeners
+
     if (fundSelect) fundSelect.addEventListener('change', applyFilters);
     if (budgetSelect) budgetSelect.addEventListener('change', applyFilters);
     if (orgSelect) orgSelect.addEventListener('change', applyFilters);

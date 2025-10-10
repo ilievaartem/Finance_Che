@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Дашборд Фінансової Звітності</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.0/nouislider.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="financial.css">
+</head>
+<body>
+    <div class="page-wrapper">
+        <header class="modern-header animate__animated animate__fadeInDown">
+            <div class="container">
+                <div class="header-content">
+                    <div class="header-brand">
+                        <i class="fas fa-chart-line brand-icon"></i>
+                        <h1 class="brand-title">Фінансова Аналітика</h1>
+                    </div>
+                    <div class="header-controls">
+                        <a href="index.html" class="btn-nav" title="Головна">
+                            <i class="fas fa-home"></i>
+                        </a>
+                        <a href="contracts.html" class="btn-nav" title="Договори">
+                            <i class="fas fa-file-contract"></i>
+                        </a>
+                        <a href="acts.html" class="btn-nav" title="Акти">
+                            <i class="fas fa-file-alt"></i>
+                        </a>
+                        <button class="btn-refresh" id="refresh-data" title="Оновити дані">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <div class="theme-toggle" id="theme-toggle" title="Змінити тему">
+                            <i class="fas fa-moon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <main class="container-fluid my-4">
+            <section id="kpi-section" class="dashboard-metrics mb-5 animate__animated animate__fadeInUp">
+                <div class="row g-4">
+                    <div class="col-lg-3 col-md-6">
+                        <div class="metric-card total-reports">
+                            <div class="metric-icon">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div class="metric-content">
+                                <h3 class="metric-value" id="total-revenue">0</h3>
+                                <p class="metric-label">Загальна Кількість Звітів</p>
+                                <div class="metric-trend">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>+5.2%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="metric-card popular-fund">
+                            <div class="metric-icon">
+                                <i class="fas fa-university"></i>
+                            </div>
+                            <div class="metric-content">
+                                <h3 class="metric-value" id="total-expenses">Н/Д</h3>
+                                <p class="metric-label">Найпоширеніший Фонд</p>
+                                <div class="metric-trend">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>Стабільно</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="metric-card popular-budget">
+                            <div class="metric-icon">
+                                <i class="fas fa-coins"></i>
+                            </div>
+                            <div class="metric-content">
+                                <h3 class="metric-value" id="net-profit">Н/Д</h3>
+                                <p class="metric-label">Найпоширеніший Бюджет</p>
+                                <div class="metric-trend">
+                                    <i class="fas fa-arrow-down"></i>
+                                    <span>-2.1%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="metric-card unique-orgs">
+                            <div class="metric-icon">
+                                <i class="fas fa-sitemap"></i>
+                            </div>
+                            <div class="metric-content">
+                                <h3 class="metric-value" id="unique-organizations">0</h3>
+                                <p class="metric-label">Унікальних Організацій</p>
+                                <div class="metric-trend">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>Активні</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="filters-panel mb-5 animate__animated animate__fadeInLeft">
+                <div class="panel-card">
+                    <div class="panel-header">
+                        <h3 class="panel-title">
+                            <i class="fas fa-filter"></i>
+                            Розширені Фільтри
+                        </h3>
+                        <button class="btn-collapse" data-bs-toggle="collapse" data-bs-target="#filtersContent">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    </div>
+                    <div class="collapse show" id="filtersContent">
+                        <div class="panel-body">
+                            <div class="row g-4">
+                                <div class="col-lg-3 col-md-6">
+                                    <div class="filter-group">
+                                        <label for="fund-filter" class="filter-label">
+                                            <i class="fas fa-university"></i>
+                                            Фільтр за Фондом
+                                        </label>
+                                        <select class="form-select modern-select" id="fund-filter">
+                                            <option value="">Всі фонди</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-md-6">
+                                    <div class="filter-group">
+                                        <label for="budget-filter" class="filter-label">
+                                            <i class="fas fa-coins"></i>
+                                            Фільтр за Бюджетом
+                                        </label>
+                                        <select class="form-select modern-select" id="budget-filter">
+                                            <option value="">Всі бюджети</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-md-6">
+                                    <div class="filter-group">
+                                        <label for="org-filter" class="filter-label">
+                                            <i class="fas fa-building"></i>
+                                            Фільтр за Організацією
+                                        </label>
+                                        <select class="form-select modern-select" id="org-filter">
+                                            <option value="">Всі організації</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-md-6">
+                                    <div class="filter-group">
+                                        <label class="filter-label">
+                                            <i class="fas fa-calendar-alt"></i>
+                                            Діапазон Дат
+                                        </label>
+                                        <div class="date-range-container">
+                                            <div id="date-slider" class="modern-slider"></div>
+                                            <div class="date-display">
+                                                <span class="date-badge" id="min-date-display"></span>
+                                                <span class="date-badge" id="max-date-display"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-1">
+                                <div class="col-12 d-flex justify-content-end gap-2">
+                                    <button class="btn btn-outline-secondary" id="reset-filters">
+                                        <i class="fas fa-undo"></i>
+                                        Скинути
+                                    </button>
+                                    <!-- <button class="btn btn-primary" id="apply-filters">
+                                        <i class="fas fa-search"></i>
+                                        Застосувати
+                                    </button> -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="charts-section mb-5">
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="chart-card compact">
+                            <div class="chart-header">
+                                <h4 class="chart-title">
+                                    <i class="fas fa-chart-line"></i>
+                                    Динаміка Звітів за Часом
+                                </h4>
+                                <div class="chart-controls">
+                                    <button class="btn-chart-option active" data-period="month">Місяць</button>
+                                    <button class="btn-chart-option" data-period="quarter">Квартал</button>
+                                    <button class="btn-chart-option" data-period="year">Рік</button>
+                                </div>
+                            </div>
+                            <div class="chart-body" id="revenue-chart-container">
+                                <div class="chart-loading" id="revenue-chart-loading">
+                                    <div class="spinner"></div>
+                                    <span>Завантаження...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="chart-card compact">
+                            <div class="chart-header">
+                                <h4 class="chart-title">
+                                    <i class="fas fa-chart-bar"></i>
+                                    Розподіл за Фондами
+                                </h4>
+                                <div class="chart-controls">
+                                    <button class="btn-chart-option active" data-view="count">Кількість</button>
+                                    <button class="btn-chart-option" data-view="percentage">Відсоток</button>
+                                </div>
+                            </div>
+                            <div class="chart-body" id="expenses-chart-container">
+                                <div class="chart-loading" id="expenses-chart-loading">
+                                    <div class="spinner"></div>
+                                    <span>Завантаження...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-4 mt-2">
+                    <div class="col-12">
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h4 class="chart-title">
+                                    <i class="fas fa-th-large"></i>
+                                    Типи Звітів
+                                </h4>
+                                <div class="chart-actions">
+                                    <button class="btn-collapse" data-bs-toggle="collapse" data-bs-target="#pieChartContent">
+                                        <i class="fas fa-chevron-down"></i>
+                                    </button>
+                                    <button class="btn-chart-action" title="Повноекранний режим" onclick="toggleFullscreen('pie-chart-container')">
+                                        <i class="fas fa-expand"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="collapse show" id="pieChartContent">
+                                <div class="chart-body" id="pie-chart-container">
+                                    <div class="chart-loading" id="pie-chart-loading">
+                                        <div class="spinner"></div>
+                                        <span>Завантаження...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="data-table-section animate__animated animate__slideInUp">
+                <div class="table-card">
+                    <div class="table-header">
+                        <div class="table-title-group">
+                            <h4 class="table-title">
+                                <i class="fas fa-table"></i>
+                                Детальні Дані Звітів
+                            </h4>
+                            <div class="table-stats">
+                                <span class="stats-item">
+                                    <i class="fas fa-database"></i>
+                                    Записів: <span id="total-records">0</span>
+                                </span>
+                                <span class="stats-item">
+                                    <i class="fas fa-filter"></i>
+                                    Відфільтровано: <span id="filtered-records">0</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="table-actions">
+                            <div class="search-box">
+                                <input type="text" class="form-control" id="table-search" placeholder="Пошук по таблиці...">
+                                <i class="fas fa-search search-icon"></i>
+                            </div>
+                            <div class="action-buttons">
+                                <button class="btn-action" id="export-pdf" title="Експорт в PDF">
+                                    <i class="fas fa-file-pdf"></i>
+                                </button>
+                                <button class="btn-action" id="refresh-table" title="Оновити таблицю">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-body">
+                        <div class="table-responsive">
+                            <table id="data-table" class="modern-table">
+                                <thead>
+                                    <tr>
+                                        <th class="sortable col-report" data-column="reportTypeId">
+                                            <span>Тип звіту</span>
+                                            <i class="fas fa-sort sort-icon"></i>
+                                        </th>
+                                        <th class="sortable col-budget" data-column="budget">
+                                            <span>Бюджет / Фонд</span>
+                                            <i class="fas fa-sort sort-icon"></i>
+                                        </th>
+                                        <th class="sortable col-kvk" data-column="progKlas">
+                                            <span>КВК / КПК</span>
+                                            <i class="fas fa-sort sort-icon"></i>
+                                        </th>
+                                        <th class="sortable col-period" data-column="publishDate">
+                                            <span>Період</span>
+                                            <i class="fas fa-sort sort-icon"></i>
+                                        </th>
+                                        <th class="sortable col-pubdate" data-column="publishDate">
+                                            <span>Дата оприлюднення</span>
+                                            <i class="fas fa-sort sort-icon"></i>
+                                        </th>
+                                        <th class="actions-column col-actions text-center">Дії</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="table-footer">
+                            <div class="pagination-info">
+                                <span>Показано <span id="showing-start">0</span>-<span id="showing-end">0</span> з <span id="showing-total">0</span> записів</span>
+                            </div>
+                            <nav aria-label="Table pagination">
+                                <ul class="pagination modern-pagination" id="pagination">
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+<!-- 
+        <footer class="modern-footer">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-info">
+                        <div class="footer-brand">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Фінансова Аналітика</span>
+                        </div>
+                        <p class="footer-text">&copy; 2025 Дашборд Фінансової Звітності від ЧЕРНІВЕЦЬКОЇ ОДА.</p>
+                    </div>
+                    <div class="footer-links">
+                        <a href="index.html" class="footer-link">Головна</a>
+                        <a href="contracts.html" class="footer-link">Договори</a>
+                        <a href="acts.html" class="footer-link">Акти</a>
+                    </div>
+                </div>
+            </div>
+        </footer> -->
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.0/nouislider.min.js"></script>
+    <script src="CombinedApiData.js"></script>
+    <script src="type.js"></script>
+    <script src="financial.js"></script>
+</body>
+</html>

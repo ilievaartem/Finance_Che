@@ -114,6 +114,30 @@ body {
     gap: 1rem;
 }
 
+.page-nav {
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+}
+.page-nav .nav-inner {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+}
+.page-nav .btn-nav {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-md);
+}
+.page-nav .btn-nav.active,
+.page-nav .btn-nav:hover {
+    background: var(--acts-primary);
+    color: #fff;
+    border-color: var(--acts-primary);
+}
+
 .btn-nav, .btn-refresh, .theme-toggle {
     background: rgba(255, 255, 255, 0.2);
     border: none;

@@ -790,33 +790,6 @@ class ActsDashboard {
             })
             .on('mouseout', () => this.hideTooltip());
 
-        // Add legend
-        const legend = d3.select('#' + id).append('div')
-            .style('display', 'flex')
-            .style('flex-wrap', 'wrap')
-            .style('justify-content', 'center')
-            .style('gap', '8px')
-            .style('margin-top', '16px');
-
-        labels.forEach((label, i) => {
-            const item = legend.append('div')
-                .style('display', 'flex')
-                .style('align-items', 'center')
-                .style('gap', '6px')
-                .style('padding', '4px 8px')
-                .style('background', 'var(--bg-secondary)')
-                .style('border-radius', '4px')
-                .style('font-size', '12px');
-
-            item.append('div')
-                .style('width', '12px')
-                .style('height', '12px')
-                .style('background', this.bubbleColors[i % this.bubbleColors.length])
-                .style('border-radius', '2px');
-
-            item.append('div')
-                .text(`${label} (${values[i]})`);
-        });
     }
 
     initializeCollapseHandlers() {
